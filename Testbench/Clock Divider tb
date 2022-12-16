@@ -1,0 +1,18 @@
+module clk_divider_counter_tb();
+reg clk, rst;
+wire clk_div;
+
+
+clk_divider_counter dut(.clk(clk),.rst(rst),.clk_div(clk_div));
+
+initial begin : clk_500MHz
+clk = 0;
+forever #1 clk = ~clk;
+end
+initial begin
+rst=1;
+#10;
+rst=0;
+end
+
+endmodule

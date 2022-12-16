@@ -1,0 +1,90 @@
+module main_tb();
+reg rstone;
+reg rstzero;
+reg systemclk;
+reg [0:2]in_A;
+
+wire DP;
+wire [7:0] AN;
+wire [6:0] SEG;
+wire [0:2]light;
+
+initial begin   // : systemclk=500MHz
+systemclk=0;
+forever #0.0005 systemclk=~systemclk;
+end
+
+main dut(
+.rstone(rstone),
+.rstzero(rstzero),
+.systemclk(systemclk),
+.in_A(in_A),
+.DP(DP),
+.AN(AN),
+.SEG(SEG),
+.light(light));
+
+initial begin : clk_500MHz
+systemclk = 0;
+forever #1 systemclk =~ systemclk;
+end
+
+initial begin
+rstone<=1;
+rstzero<=1;
+in_A<=0;
+
+#10
+rstzero<=0;
+rstone<=1;
+#1  rstone<=0;
+
+#10
+rstone<=1;
+#17000  rstone<=0;
+
+#10
+rstone<=1;
+#17000  rstone<=0;
+
+#10
+rstone<=1;
+#17000  rstone<=0;
+
+#10
+rstone<=1;
+#17000  rstone<=0;
+
+#10
+rstone<=1;
+#17000  rstone<=0;
+
+#10
+rstone<=1;
+#17000  rstone<=0;
+
+#10
+rstone<=1;
+#17000  rstone<=0;
+
+#10
+rstone<=1;
+#17000  rstone<=0;
+
+#10
+rstone<=1;
+#17000  rstone<=0;
+
+#10
+rstone<=1;
+#17000  rstone<=0;
+
+#10
+rstone<=1;
+#17000  rstone<=0;
+
+#10
+rstone<=1;
+#17000  rstone<=0;
+end
+endmodule

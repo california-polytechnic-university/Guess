@@ -1,1 +1,179 @@
+`timescale 1ns / 1ps
+
+module main(
+input rstone,
+input rstzero,
+input clk,
+input [0:2]in_A,                    //switches used for player to guess
+output DP,
+output reg [7:0] AN,
+output reg [6:0] SEG,
+output reg [2:0] light);
+
+assign DP=1'b1;                         //decimal point to be off
+ wire clkdiv;
+ reg [0:2]num;                          //this variable used for the case statements
+ reg [7:0]in_AN; 
+ reg [0:2] selectSeg;                 //used in the case statements to display the respective letter/number onto the seven-segment
+ reg [0:7] segZero;                   //the next 6 lines are initializing the value to be displayed for each segment (used in case statements)
+ reg [0:7] segOne;
+ reg [0:7] segTwo;
+ reg [0:7] segThree;
+ reg [0:7] segFour;
+ reg [0:7] segFive;
+ 
+ reg [0:2]randomNum;                                    //this variable will be iterated constantly, we get the "random" value from this
+ reg [0:2] selectedNum;                                 //when the game starts, the current randomNum will be the value the player has to guess. it is stored in this variable
+
+initial begin                                           //initializing the variables
+AN <= 8'b11111110;                                      //initializing AN
+num<=0;                                                 //initializing the case value to 0 (start)
+randomNum<=0;                                       
+selectSeg<=0;
+end
+
+clk_divider_counter clk(clk,rstzero,clkdiv );
+    
+wire out;                                           //output for the funciton called below
+mux_5to31 mux(rstzero, clk, 01000, out);            //getting out to set the pace of the case statements
+
+    
+always @(posedge clkdiv) begin                      //this loop is to generate a series of numbers which the player has to guess
+        randomNum= randomNum+1;
+        if (randomNum> 3'b111)
+            randomNum=0;
+end
+
+always @(posedge out) begin                 //this loop is for the case statements for each "stage" of the game
+
+//light<=0;
+case(num)                                   //to slip through the case statements
+
+3'b010: begin
+light<=num;
+         segFive= 7'b0001000;        //"R"
+         segFour= 7'b0000110;        //"E"
+         segThree= 7'b0001000;       //"A"
+         segTwo= 7'b1000000;         //"D"
+         segOne= 7'b0010001;         //"Y"
+         segZero= 7'b0101100;        //"?"
+
+    if (rstone==1) begin                //when button is pressed go to the next state
+        num <= 3'b111;
+        selectedNum<=randomNum;             //the random number is stopped and is now the value the player has to guess
+        light<=0;                 //setting the led lights to show what the number is for testing purposes
+    end
+end
+
+3'b100: begin                        //yay
+light<=num; 
+         segFive= 7'b1111111;        //" "
+         segFour= 7'b1111111;        //" "
+         segThree= 7'b1111111;       //" "
+         segTwo= 7'b0010001;         //"Y"
+         segOne= 7'b0001000;         //"A"
+         segZero= 7'b0010001;        //"Y"
+
+    if (rstone==1) begin            //when button pressed go back to the first state
+        num <= 3'b010;
+        //hold<=0;
+    end
+end
+
+3'b000: begin           ///loss
+light<=num;
+        //light<=selectedNum;                 //setting the led lights to show what the number is for testing purposes
+
+         segFive= 7'b1111111;        //" "
+         segFour= 7'b1111111;        //" "
+         segThree= 7'b1111111;       //" "
+         segTwo= 7'b0000011;        //"B"
+         segOne= 7'b0100011;        //"O"
+         segZero= 7'b0100011;       //"O"
+    
+    if (rstone==1) begin            //when button is pressed go back to the initial state
+        num <= 3'b010;
+        //hold<=0;
+    end
+end
+
+3'b001: begin
+light<=selectedNum;
+light<=num;
+         segFive= 7'b1000111;        //"L"
+         segFour= 7'b1001111;        //"I"
+         segThree= 7'b0001110;       //"F"
+         segTwo= 7'b0000110;         //"E"
+         segOne= 7'b0111111;         //"-"
+         segZero= 7'b1001111;        //"1"
+    
+    if (rstone==1) begin
+   // hold<=0;
+        if (in_A== selectedNum)         //if switches= the random number, go to win case
+            num<= 3'b100;
+        else
+        num <= 3'b000;                  //else go to lose case
+    end
+end
+
+3'b011: begin
+light<=selectedNum;
+light<=num;
+
+         segFive= 7'b1000111;        //"L"
+         segFour= 7'b1001111;        //"I"
+         segThree= 7'b0001110;       //"F"
+         segTwo= 7'b0000110;         //"E"
+         segOne= 7'b0111111;         //"-"         
+         segZero= 7'b0100100;        //"2"
+            
+        if (rstone==1) begin
+        //hold<=0;
+        if (in_A== selectedNum)         //if the switches= the random number go to the win case
+            num<= 3'b100;
+        else
+            num <= 3'b001;              //else, a life gets decremented so go to next case
+        end
+end
+
+3'b111: begin
+//selectedNum<=randomNum;             //the random number is stopped and is now the value the player has to guess
+//light<=selectedNum;                 //setting the led lights to show what the number is for testing purposes
+        light<=num;
+         segFive= 7'b1000111;        //"L"
+         segFour= 7'b1001111;        //"I"
+         segThree= 7'b0001110;       //"F"
+         segTwo= 7'b0000110;         //"E"
+         segOne= 7'b0111111;         //"-"
+         segZero= 7'b0110000;        //"3"
+
+    if (rstone==1) begin
+    //hold<=0;
+        if (in_A == selectedNum)         //if the switches= the random number go to the win case
+            num<= 3'b100;
+        else
+        num <= 3'b011;              //else, a life gets decremented so go to next case
+    end
+end
+endcase
+end
+
+always @(posedge clkdiv) begin              //this loop is to display the text from each case onto the 7-segment
+
+selectSeg<= selectSeg+1;
+if (selectSeg>5)
+    selectSeg=0;
+
+case(selectSeg)
+
+3'b001: begin AN <= 8'b11111110; SEG<= segZero; end
+3'b010: begin AN <= 8'b11111101; SEG<= segOne; end  
+3'b011: begin AN <= 8'b11111011; SEG<= segTwo; end
+3'b100: begin AN <= 8'b11110111; SEG<= segThree; end
+3'b101: begin AN <= 8'b11101111; SEG<= segFour; end
+3'b000: begin AN <= 8'b11011111; SEG<= segFive; end
+
+endcase
+end  
+endmodule
 

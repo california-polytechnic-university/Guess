@@ -1,0 +1,16 @@
+module counter(rst, clk, outToMux);
+
+    input rst, clk;                 //system clock
+    output reg [0:31] outToMux;
+    
+    reg [0:31] tmp= 31'b0;
+    always@(posedge clk)begin
+    if (rst==1)begin
+        tmp = 31'b0;
+        outToMux= tmp; end
+    else
+        tmp= tmp+1;
+        
+    outToMux= tmp;
+    end  
+endmodule

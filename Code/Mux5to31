@@ -1,0 +1,10 @@
+`timescale 1ns / 1ps
+
+module mux_5to31(rst, clk, A, OUT);
+    input rst, clk;
+    input [0:4]A;
+    output OUT;
+    wire [0:31] bit31;
+    counter startTimer(rst, clk, bit31);
+    assign OUT= bit31[A];
+endmodule

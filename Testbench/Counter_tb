@@ -1,0 +1,17 @@
+module counter_tb();
+reg rst, clk;
+wire [0:31] outToMux;
+
+counter dut (rst, clk, outToMux);
+initial begin
+clk = 0;
+
+forever #5 clk = ~clk;
+end
+initial begin
+rst = 1;
+#5;
+rst=0;
+end
+ 
+endmodule

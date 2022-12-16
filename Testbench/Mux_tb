@@ -1,0 +1,32 @@
+module mux_5to31_tb();
+reg rst, clk;
+reg [0:4]A;
+wire OUT;
+
+mux_5to31 dut(.rst(rst),.clk(clk),.A(A),.OUT(OUT));
+
+initial begin
+clk = 0;
+
+forever #5 clk = ~clk;
+end
+
+initial begin
+rst = 1;
+#20;
+rst = 0;
+
+A = 5'b00000;
+#20;
+A = 5'b10000;
+#20;
+A = 5'b01000;
+#20;
+A = 5'b11001;
+#20;
+A = 5'b11101;
+#20;
+A = 5'b11111;
+end
+
+endmodule
